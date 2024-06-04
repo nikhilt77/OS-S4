@@ -18,7 +18,7 @@ int main(){
             scanf("%d",&Max[i][j]);
         }
     }
-    printf("Enter Available Resorces:");
+    printf("Enter Available Resources:");
     for(int i=0;i<m;i++){
         scanf("%d",&Available[i]);
     }
