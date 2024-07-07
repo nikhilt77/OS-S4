@@ -51,7 +51,7 @@ int main(){
         }
         tot_movements+=abs(initial-0);
         initial=size-1;
-        for(int i=size-1;i>pos;i--){
+        for(int i=n-1;i>pos;i--){
             tot_movements+=abs(initial-RQ[i]);
             initial=RQ[i];
         }
