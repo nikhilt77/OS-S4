@@ -1,79 +1,52 @@
 #include<stdio.h>
-#include<stdlib.h>
-#define max_frame 3
-#define max_page 20
-int completed_time=0;
-struct F{
-    int time;
-    int page;
-}Frame[max_frame];
-void initialize(){
-    for(int i=0;i<max_frame;i++){
-        Frame[i].page=-1;
-        Frame[i].time=0;
+int main(){
+    int n,max_fr,faults=0,hits=0;
+    printf("Enter ref. string length:");
+    scanf("%d",&n);
+    printf("Enter frame size:");
+    scanf("%d",&max_fr);
+    int Frame[max_fr],RF[n],Time[n];
+    printf("Enter string:");
+    for(int i=0;i<n;i++){
+        scanf("%d",&RF[i]);
     }
-}
-void Display(){
-    for(int i=0;i<max_frame;i++){
-        if(Frame[i].page!=-1){
-            printf("%d ",Frame[i].page);
-        }
-        else{
-            printf("_");
-        }
+    for(int i=0;i<max_fr;i++){
+        Frame[i]=-1;
+        Time[i]=0;
     }
-    printf("\n");
-}
-int find_lru(){
-    int mintime=Frame[0].time;
-    int minframe=0;
-    for(int i=1;i<max_frame;i++){
-        if(Frame[i].time<mintime){
-            mintime=Frame[i].time;
-            minframe=i;
-        }
-    }
-    return minframe;
-}
-void LRU(int Pages[],int n){
-    int faults=0;
-    int hits=0;
     for(int i=0;i<n;i++){
         int found=0;
-        completed_time++;
-        int refer=Pages[i];
-        for(int j=0;j<max_frame;j++){
-            if(refer==Frame[j].page){
+        for(int j=0;j<max_fr;j++){
+            if(Frame[j]==RF[i]){
                 hits++;
+                Time[j]++;
                 found=1;
-                Frame[j].time=completed_time;
                 break;
             }
         }
-            if(found==0){
-                int frame=find_lru();
-                faults++;
-                Frame[frame].page=refer;
-                Frame[frame].time=completed_time;
-                printf("Page %d placed at %d\t",refer,frame);
-                printf("Page Fault No.%d\n",faults);
-            }
-            printf("Page %d:",i);
-            Display();
+        if(found!=1){
+            faults++;
+                int min=0;
+                for(int j=1;j<max_fr;j++){
+                    if(Time[min]>Time[j]){
+                        min=j;
+                    }
+                }
+                Frame[min]=RF[i];
+                Time[min]++;
+                printf("%d loaded into Frame %d\n",RF[i],min);
         }
-    float total=faults+hits;
-    float fault_ratio=(float)faults/total;
-    printf("Fault ratio:%.2f\n",fault_ratio);
-}
-int main(){
-    int n;
-    printf("Enter reference string length:");
-    scanf("%d",&n);
-    int Pages[n];
-    printf("enter reference string:");
-    for(int i=0;i<n;i++){
-        scanf("%d",&Pages[i]);
+        for(int k=0;k<max_fr;k++){
+            if(Frame[k]!=-1){
+                printf("%d\t",Frame[k]);
+            }
+            else{
+                printf("_\t");
+            }
+        }
+        printf("\n");
     }
-    initialize();
-    LRU(Pages,n);
+    float fr=(float)faults/(hits+faults);
+    printf("Page Faults:%d\n",faults);
+    printf("Fault Ratio:%.2f\n",fr);
 }
