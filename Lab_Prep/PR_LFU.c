@@ -1,79 +1,64 @@
 #include<stdio.h>
-#include<stdlib.h>
-#define max_page 20
-#define max_frames 3
 
-struct F{
-    int page;
-    int frequency;
-}
-Frame[max_frames];
-int completedtime=0;
-void initialize(){
-    for(int i=0;i<max_frames;i++){
-        Frame[i].page=-1;
-        Frame[i].frequency=0;
-    }
-}
-void Display(){
-    for(int i=0;i<max_frames;i++){
-        if(Frame[i].page!=-1){
-            printf("%d\t",Frame[i].page);
-        }
-        else{
-            printf("_\t");
-        }
-    }
-    printf("\n");
-}
-int find_LFU(){
-    int minfreq=Frame[0].frequency;
-    int minframe=0;
-    for(int i=1;i<max_frames;i++){
-        if(Frame[i].frequency<minfreq){
-            minframe=i;
-            minfreq=Frame[i].frequency;
-        }
-    }
-    return minframe;
-}
-void LFU(int Pages[],int n){
-    int faults=0,hits=0,found,refer;
-    for(int i=0;i<n;i++){
-        refer=Pages[i];
-        found=0;
-        for(int j=0;j<max_frames;j++){
-            if(refer==Frame[j].page){
-                found=1;
-                hits++;
-                Frame[j].frequency++;
-                break;
-            }
-        }
-        if(found==0){
-            int LFU_frame=find_LFU();
-            printf("Page %d replaced by %d\t", Frame[LFU_frame].page, refer);
-            Frame[LFU_frame].page=refer;
-            Frame[LFU_frame].frequency=1;//reset to 1
-            faults++;
-            printf("Page Fault No.%d\n",faults);
-        }
-        printf("Page %d\n",refer);
-        Display();
-    }
-    float total=faults+hits;
-    float fault_ratio=(float)faults/total;
-    printf("Fault Ratio:%.2f\n",fault_ratio);
-}
 int main(){
-    int n;
-    printf("Enter reference string length:");
+    int n,max_fr;
+    printf("Enter length of Ref. string:");
     scanf("%d",&n);
-    int Pages[n];
-    printf("enter reference string:");
+    printf("Enter no. of frames:");
+    scanf("%d",&max_fr);
+    int Frame[max_fr],Pages[n],Freq[n],Time[max_fr],hits=0,faults=0;
+    printf("Enter ref. string:");
     for(int i=0;i<n;i++){
         scanf("%d",&Pages[i]);
     }
-    initialize();
-    LFU(Pages,n);
+    for(int i=0;i<max_fr;i++){
+        Frame[i]=-1;
+        Freq[i]=0;
+        Time[i]=0;
+    }
+    for(int i=0;i<n;i++){
+        int found=0;
+        for(int j=0;j<max_fr;j++){
+            if(Frame[j]==Pages[i]){
+                found=1;
+                hits++;
+                Freq[j]++;
+                Time[j]++;
+                break;
+            }
+        }
+        if(found!=1){
+            if(i<max_fr){
+                Frame[i]=Pages[i];
+                Time[i]++;
+                Freq[i]=1;
+            }
+            else{
+                int min=0;
+                for(int j=1;j<max_fr;j++){
+                    if(Freq[min]>Freq[j]||(Freq[min]==Freq[j]&&Time[min]>Time[j])){
+                        min=j;
+                    }
+                }
+                Frame[min]=Pages[i];
+                Freq[min]=1;
+                Time[min]++;
+                printf("%d loaded into farme %d\n",Pages[i],min);
+            }
+            faults++;
+        }
+        for(int i=0;i<max_fr;i++){
+            if(Frame[i]!=-1){
+                printf("%d\t",Frame[i]);
+            }
+            else{
+                printf("_\t");
+            }
+        }
+        printf("\n");
+    }
+    printf("Total Faults:%d\n",faults);
+    printf("Total Hits:%d\n",hits);
+    float fr=(float)faults/(faults+hits);
+    printf("Fault Ratio:%.2f\n",fr);
 }
