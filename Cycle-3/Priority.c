@@ -1,65 +1,55 @@
 #include<stdio.h>
+#define max 20
 
-struct Process{
-    int bt,wt,tt,pid,priority;
-};
+struct pri{
+    int AT;
+    int TAT;
+    int WT;
+    int CT;
+    int BT;
+    int pid;
+    int pri;
+}p[max];
 
 int main(){
-    int n,waitingtime,totaltime=0,twait=0, tturnaround=0;
-    printf("Enter number of process:");
+    int n,totTAT=0,totWT=0,completed=0,time=0;
+    printf("Enter n:");
     scanf("%d",&n);
-    struct Process p[n];
     for(int i=0;i<n;i++){
-        printf("Enter burst time and priority of Process%d: ",i);
-        scanf("%d %d",&p[i].bt, &p[i].priority);
-        p[i].pid=i+1;
+        printf("BT AT PRI P%d:\n",i);
+        scanf("%d %d %d",&p[i].BT,&p[i].AT,&p[i].pri);
+        p[i].pid=i;
+        p[i].CT=0;
     }
-    for(int i=0;i<n;i++){
-        for(int j=0;j<n-i-1;j++){
-            if(p[j].priority>p[j+1].priority){
-                struct Process temp;
-                temp=p[j];
-                p[j]=p[j+1];
-                p[j+1]=temp;
+    while(completed<n){
+        int min=-1;
+        for(int i=0;i<n;i++){
+            if(p[i].CT==0&&p[i].AT<=time){
+                if(p[i].pri<p[min].pri||min==-1){
+                    min=i;
+                }
             }
         }
-    }		
-    for(int i=0;i<n;i++){
-        p[i].wt=totaltime;
-        totaltime+=p[i].bt;
-        twait+=p[i].wt;
-        p[i].tt=p[i].bt+p[i].wt;
-        tturnaround+=p[i].tt;
+            if(min==-1){
+                time++;
+            }
+            else{
+                p[min].CT=time+p[min].BT;
+                p[min].TAT=p[min].CT-p[min].AT;
+                p[min].WT=p[min].TAT-p[min].BT;
+                time=p[min].CT;
+                totTAT+=p[min].TAT;
+                totWT+=p[min].WT;
+                completed++;
+            }
+
     }
-    printf("------------------------------------------\n");
-    printf(" Process\t BT \t WT \t TT \t Priority\n");
+    float avgTAT=(float)totTAT/n;
+    float avgWT=(float)totWT/n;
+    printf("P\tBT\tAT\tPr\tWT\tTAT\n");
     for(int i=0;i<n;i++){
-        printf(" %d\t\t%d \t %d \t %d \t %d\n",p[i].pid,p[i].bt,p[i].wt,p[i].tt,p[i].priority);
+        printf("%d\t%d\t%d\t%d\t%d\t%d\n",p[i].pid,p[i].BT,p[i].AT,p[i].pri,p[i].WT,p[i].TAT);
     }
-    printf("------------------------------------------\n");
-    twait=twait/n;
-    tturnaround=tturnaround/n;
-    printf("Average Wait time:%d\n",twait);
-    printf("Average TurnAround time:%d\n",tturnaround);
-    return 0;
+    printf("Avg TAT:%.2f",avgTAT);
+    printf("Avg Wt:%.2f",avgWT);
 }
-/* Output
-Enter number of process:4
-Enter burst time and priority of Process0: 5
-4
-Enter burst time and priority of Process1: 4
-1
-Enter burst time and priority of Process2: 3
-2
-Enter burst time and priority of Process3: 6
-3
-------------------------------------------
- Process	 BT 	 WT 	 TT 	 Priority
- 2		     4 	   0 	   4 	       1
- 3		     3 	   4 	   7 	       2 
- 4		     6 	   7 	   13 	     3
- 1		     5 	   13 	 18 	     4
-------------------------------------------
-Average Wait time:6
-Average TurnAround time:10
-*/  
