@@ -17,9 +17,6 @@ int main() {
     printf("Enter direction (1-high, 0-low): ");
     scanf("%d", &direction);
 
-    RQ[n] = initial;
-    n++;
-
     for (int i = 0; i < n - 1; i++) {
         for (int j = 0; j < n - i - 1; j++) {
             if (RQ[j] > RQ[j + 1]) {
@@ -31,7 +28,7 @@ int main() {
     }
 
     for (int i = 0; i < n; i++) {
-        if (RQ[i] == initial) {
+        if (RQ[i] >= initial) {
             pos = i;
             break;
         }
